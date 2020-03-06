@@ -502,4 +502,22 @@ public final class JavaGeneratorTest {
         + "      return this;\n"
         + "    }");
   }
+
+  // TODO(benoit|masaru) Add one enum, and one message.
+  @Test public void generateTypeUsesNameAllocatorInMessageBuilderBuildForProto3() throws Exception {
+    RepoBuilder repoBuilder = new RepoBuilder()
+        .add("message.proto", ""
+            + "syntax = \"proto3\";\n"
+            + "message Message {\n"
+            + "  float long = 1;\n"
+            + "}\n");
+    assertThat(repoBuilder.generateCode("Message")).contains(""
+        + "    @Override\n"
+        + "    public Message build() {\n"
+        + "      if (long_ == null) {\n"
+        + "        throw Internal.missingRequiredFields(long_, \"long\");\n"
+        + "      }\n"
+        + "      return new Message(long_, super.buildUnknownFields());\n"
+        + "    }\n");
+  }
 }

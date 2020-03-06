@@ -23,9 +23,9 @@ class OneOf private constructor(
   val documentation: String,
   val fields: List<Field>
 ) {
-  fun link(linker: Linker) {
+  fun link(linker: Linker, syntaxRules: SyntaxRules) {
     for (field in fields) {
-      field.link(linker)
+      field.link(linker, syntaxRules)
     }
   }
 

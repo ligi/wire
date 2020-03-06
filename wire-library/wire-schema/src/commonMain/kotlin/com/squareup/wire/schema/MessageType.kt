@@ -101,16 +101,16 @@ class MessageType private constructor(
     extensionFields.addAll(fields)
   }
 
-  override fun linkMembers(linker: Linker) {
+  override fun linkMembers(linker: Linker, syntaxRules: SyntaxRules) {
     val linker = linker.withContext(this)
     for (field in declaredFields) {
-      field.link(linker)
+      field.link(linker, syntaxRules)
     }
     for (field in extensionFields) {
-      field.link(linker)
+      field.link(linker, syntaxRules)
     }
     for (oneOf in oneOfs) {
-      oneOf.link(linker)
+      oneOf.link(linker, syntaxRules)
     }
   }
 

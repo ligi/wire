@@ -21,6 +21,7 @@ import com.squareup.wire.schema.PruningRules
 import com.squareup.wire.schema.RepoBuilder
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.text.RegexOption.DOT_MATCHES_ALL
 
@@ -852,6 +853,24 @@ class KotlinGeneratorTest {
     val input = "/* comment inside comment. */"
     val expected = "/&#42; comment inside comment. &#42;/"
     assertEquals(expected, input.sanitizeKdoc())
+  }
+
+  // TODO(benoit|masaru) Add one enum.
+  @Test fun noLabelForProto3() {
+    val repoBuilder = RepoBuilder()
+        .add("a.proto", """
+        |syntax = "proto3";
+        |package common.proto;
+        |message Message {
+        |  string s = 1;
+        |  Text text = 2; 
+        |}
+        |message Text {}
+        |""".trimMargin())
+    val code = repoBuilder.generateKotlin("common.proto.Message")
+    assertTrue(code.contains("val s: String"))
+    assertFalse(code.contains("val s: String?"))
+    assertTrue(code.contains("val text: Text?"))
   }
 
   companion object {

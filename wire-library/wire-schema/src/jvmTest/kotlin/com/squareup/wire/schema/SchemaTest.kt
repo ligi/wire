@@ -1839,4 +1839,38 @@ class SchemaTest {
     assertThat(schema.getService("Service")!!.options().elements).contains(deprecatedOptionElement)
     assertThat(schema.getService("Service")!!.rpc("Call")!!.options.elements).contains(deprecatedOptionElement)
   }
+
+  @Test
+  fun defaultLabelForProto3Fields() {
+    val schema = RepoBuilder()
+        .add("message.proto", """
+            |syntax = "proto3";
+            |
+            |message Message {
+            |  OtherMessage a = 1;
+            |  bool b = 2;
+            |  bytes c = 3;
+            |  string d = 4;
+            |  Enum e = 5;
+            |}
+            |
+            |message OtherMessage {}
+            |enum Enum {
+            |  UNKNOWN = 0;
+            |}
+            |""".trimMargin()
+        ).schema()
+
+    val messageType = schema.getType("Message") as MessageType
+    assertThat(messageType.field("a")!!.isOptional).isTrue()
+    assertThat(messageType.field("a")!!.isRequired).isFalse()
+    assertThat(messageType.field("b")!!.isOptional).isFalse()
+    assertThat(messageType.field("b")!!.isRequired).isTrue()
+    assertThat(messageType.field("c")!!.isOptional).isFalse()
+    assertThat(messageType.field("c")!!.isRequired).isTrue()
+    assertThat(messageType.field("d")!!.isOptional).isFalse()
+    assertThat(messageType.field("d")!!.isRequired).isTrue()
+    assertThat(messageType.field("e")!!.isOptional).isFalse()
+    assertThat(messageType.field("e")!!.isRequired).isTrue()
+  }
 }

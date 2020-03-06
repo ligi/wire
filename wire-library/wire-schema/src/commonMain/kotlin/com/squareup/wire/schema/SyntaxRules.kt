@@ -25,6 +25,7 @@ interface SyntaxRules {
   fun canExtend(protoType: ProtoType): Boolean
   fun enumRequiresZeroValueAtFirstPosition(): Boolean
   fun isPackedByDefault(type: ProtoType, label: Field.Label?): Boolean
+  fun isTypeOptionalByDefault(protoType: ProtoType, type: Type?): Boolean
 
   companion object {
     fun get(syntax: Syntax?): SyntaxRules {
@@ -43,6 +44,8 @@ interface SyntaxRules {
         type: ProtoType,
         label: Field.Label?
       ): Boolean = false
+
+      override fun isTypeOptionalByDefault(protoType: ProtoType, type: Type?): Boolean = true
     }
 
     internal val PROTO_3_SYNTAX_RULES = object : SyntaxRules {
@@ -56,6 +59,10 @@ interface SyntaxRules {
         label: Field.Label?
       ): Boolean {
         return label == Field.Label.REPEATED && type in ProtoType.NUMERIC_SCALAR_TYPES
+      }
+
+      override fun isTypeOptionalByDefault(protoType: ProtoType, type: Type?): Boolean {
+        return !(protoType.isScalar || type is EnumType)
       }
     }
   }

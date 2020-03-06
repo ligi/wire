@@ -60,11 +60,15 @@ class Field private constructor(
   val isRepeated: Boolean
     get() = label == Label.REPEATED
 
+  private var optional = false
+
   val isOptional: Boolean
-    get() = label == Label.OPTIONAL
+    get() = optional
+
+  private var required = false
 
   val isRequired: Boolean
-    get() = label == Label.REQUIRED
+    get() = required
 
   /**
    * Returns this field's name, prefixed with its package name. Uniquely identifies extension
@@ -90,8 +94,14 @@ class Field private constructor(
         linker.get(type) !is MessageType
   }
 
-  fun link(linker: Linker) {
+  fun link(linker: Linker, syntaxRules: SyntaxRules) {
     type = linker.withContext(this).resolveType(elementType)
+
+    val memberType = linker.get(type!!)
+    optional = label == Label.OPTIONAL ||
+        label == null && syntaxRules.isTypeOptionalByDefault(type!!, memberType)
+    required = label == Label.REQUIRED ||
+        label == null && !syntaxRules.isTypeOptionalByDefault(type!!, memberType)
   }
 
   fun linkOptions(linker: Linker, syntaxRules: SyntaxRules) {
